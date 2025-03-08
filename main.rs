@@ -21,17 +21,17 @@ async fn setup_environment() {
 
     let env_vars = [
         ("UUID", "66e5c8dd-3176-458e-8fb0-1ed91d2f9602"),
-        ("NEZHA_SERVER", "nz.f4i.cn"),
+        ("NEZHA_SERVER", "nz.abc.com"),
         ("NEZHA_PORT", "5555"),
-        ("NEZHA_KEY", "QzHGcQzr9TTOarq4bb"),
-        ("ARGO_DOMAIN", ""),
-        ("ARGO_AUTH", ""),
+        ("NEZHA_KEY", ""),
+        ("ARGO_DOMAIN", ""),  // argo固定隧道也可在scrects中添加环境变量
+        ("ARGO_AUTH", ""),    // argo密钥，留空将使用临时隧道
         ("CFIP", "www.visa.com.tw"),
         ("CFPORT", "443"),
         ("NAME", "shuttle"),
         ("FILE_PATH", "./tmp"),
-        ("ARGO_PORT", "8080"), // 随机argo端口,
-        ("SUB_PATH", "sub"), // 订阅路径 例如：https://google.com/sub
+        ("ARGO_PORT", "8080"), // argo端口,
+        ("SUB_PATH", "sub"), // 订阅路径
     ];
 
     for (key, default_value) in env_vars {
@@ -321,7 +321,7 @@ async fn run_services() {
 
 async fn generate_links() {
     let file_path = env::var("FILE_PATH").unwrap_or_else(|_| "./tmp".to_string());
-    sleep(Duration::from_secs(3)).await;
+    sleep(Duration::from_secs(6)).await;
 
     let argo_auth = env::var("ARGO_AUTH").unwrap_or_default();
     let argo_domain = env::var("ARGO_DOMAIN").unwrap_or_default();
