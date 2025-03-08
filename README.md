@@ -11,5 +11,6 @@
 ![image](https://github.com/user-attachments/assets/d67ab79b-8d1d-437e-8c6b-786163e197a2)
 
 5. 其他环境变量也可在secrets ansd variable中添加
+6. 安装环境时间稍长，预计部署时间需要10分钟，请耐心等待
 ## 订阅 
 https://<你的域名>/<SUB_PATH>
