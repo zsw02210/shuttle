@@ -1,0 +1,35 @@
+name: Deploy to Shuttle
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 1,30 * *'  # 每30天运行一次
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      
+      - name: Install Shuttle CLI
+        run: |
+          cargo install cargo-shuttle
+      
+      - name: Create Shuttle.toml
+        run: |
+          echo 'name = "shuttle-app"' > Shuttle.toml
+      
+      - name: Deploy to Shuttle
+        env:
+          SHUTTLE_API_KEY: ${{ secrets.SHUTTLE_API_KEY }}
+        run: |
+          cargo shuttle project create --name shuttle-app
+          cargo shuttle deploy --name shuttle-app --allow-dirty
