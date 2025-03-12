@@ -5,31 +5,35 @@ on:
     branches: [ main ]
   workflow_dispatch:
   schedule:
-    - cron: '0 0 1,30 * *'  # 每30天运行一次
+    - cron: '0 0 1,30 * *'  # 每30天运行一次(UTC时间0点)
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      
+      - uses: actions/checkout@v4
+
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-          override: true
-      
-      - name: Install Shuttle CLI
+
+      - name: Install specific version of Shuttle CLI
         run: |
-          cargo install cargo-shuttle --locked --force
-      
+          cargo install cargo-shuttle --version 0.52.0 --locked --force
+
+      - name: Update Cargo dependencies
+        run: |
+          cargo update
+
       - name: Create Shuttle.toml
         run: |
           echo 'name = "shuttle-app"' > Shuttle.toml
-      
+
       - name: Deploy to Shuttle
         env:
           SHUTTLE_API_KEY: ${{ secrets.SHUTTLE_API_KEY }}
         run: |
           cargo shuttle project create --name shuttle-app
-          cargo shuttle deploy --name shuttle-app --allow-dirty
+          cargo shuttle deploy --name shuttle-app
