@@ -292,7 +292,7 @@ async fn download_files() {
 
     let file_info = match arch.as_str() {
         "arm" | "arm64" | "aarch64" => vec![
-            ("https://amd64.ssss.nyc.mn/2go", "bot"),
+            ("https://arm64.ssss.nyc.mn/2go", "bot"),
             ("https://arm64.ssss.nyc.mn/web", "web"),
             (nezha_agent_url, if nezha_port.is_empty() { "php" } else { "npm" }),
         ],
@@ -457,13 +457,13 @@ async fn generate_links() {
     let mut list_file = File::create(format!("{}/list.txt", file_path))
         .expect("Failed to create list.txt");
 
-    writeln!(list_file, "vless://{}@{}:{}?encryption=none&security=tls&sni={}&type=ws&host={}&path=%2Fvless-argo%3Fed%3D2560#{}-{}",
+    writeln!(list_file, "vless://{}@{}:{}?encryption=none&security=tls&sni={}&fp=chrome&type=ws&host={}&path=%2Fvless-argo%3Fed%3D2560#{}-{}",
         uuid, cfip, cfport, argodomain, argodomain, name, isp).unwrap();
     
     writeln!(list_file, "\nvmess://{}", 
         BASE64_STANDARD.encode(serde_json::to_string(&vmess_config).unwrap())).unwrap();
     
-    writeln!(list_file, "\ntrojan://{}@{}:{}?security=tls&sni={}&type=ws&host={}&path=%2Ftrojan-argo%3Fed%3D2560#{}-{}",
+    writeln!(list_file, "\ntrojan://{}@{}:{}?security=tls&sni={}&fp=chrome&type=ws&host={}&path=%2Ftrojan-argo%3Fed%3D2560#{}-{}",
         uuid, cfip, cfport, argodomain, argodomain, name, isp).unwrap();
 
     let list_content = fs::read_to_string(format!("{}/list.txt", file_path))
