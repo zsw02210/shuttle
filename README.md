@@ -5,7 +5,8 @@
 ## 部署流程
 1. Fork 本项目
 2. 注册 [Shuttle](https://www.shuttle.rs/) 账号并获取 API 密钥
-![image](https://github.com/user-attachments/assets/68bf5dc6-8884-4ba6-b88b-b47b66878092)
+<img width="600" height="400" alt="image" src="https://github.com/user-attachments/assets/054f390b-7bfd-4920-8486-6750ab3ace9b" />
+
 
 3. 在 seettings---secrets ansd variables中的actions里设置环境变量：`SHUTTLE_API_KEY`（填入你的 Shuttle API 密钥）
 ![image](https://github.com/user-attachments/assets/d67ab79b-8d1d-437e-8c6b-786163e197a2)
