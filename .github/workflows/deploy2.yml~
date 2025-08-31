@@ -1,3 +1,7 @@
+# 删除函数 async fn setup_environment()
+# 在main函数中删除调用：create_config_files().await;
+# 在github中设置变量 UUID、NEZHA_SERVER、NEZHA_PORT(v1不需要)、NEZHA_KEY、ARGO_DOMAIN、ARGO_AUTH、CFIP、NAME
+
 name: Deploy to Shuttle
 
 on:
