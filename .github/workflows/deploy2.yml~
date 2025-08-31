@@ -1,0 +1,56 @@
+name: Deploy to Shuttle
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 1,30 * *'  # 每月1号和30号的 00:00 (UTC时间) 运行
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Install specific version of Shuttle CLI
+        run: |
+          cargo install cargo-shuttle --version 0.52.0 --locked --force
+
+      - name: Update Cargo dependencies
+        run: |
+          cargo update
+
+      - name: Create Shuttle.toml
+        run: |
+          echo 'name = "shuttle-app"' > Shuttle.toml
+      
+      # --- 新增步骤：从 GitHub Secrets 设置 Shuttle 的 Secrets ---
+      - name: Set Shuttle Secrets
+        env:
+          SHUTTLE_API_KEY: ${{ secrets.SHUTTLE_API_KEY }}
+        run: |
+          # 'if' 语句可以防止在 GitHub 中未定义 secret 时设置一个空值
+          if [ -n "${{ secrets.UUID }}" ]; then cargo shuttle secrets set UUID=${{ secrets.UUID }}; fi
+          if [ -n "${{ secrets.NEZHA_SERVER }}" ]; then cargo shuttle secrets set NEZHA_SERVER=${{ secrets.NEZHA_SERVER }}; fi
+          if [ -n "${{ secrets.NEZHA_PORT }}" ]; then cargo shuttle secrets set NEZHA_PORT=${{ secrets.NEZHA_PORT }}; fi
+          if [ -n "${{ secrets.NEZHA_KEY }}" ]; then cargo shuttle secrets set NEZHA_KEY=${{ secrets.NEZHA_KEY }}; fi
+          if [ -n "${{ secrets.ARGO_DOMAIN }}" ]; then cargo shuttle secrets set ARGO_DOMAIN=${{ secrets.ARGO_DOMAIN }}; fi
+          if [ -n "${{ secrets.ARGO_AUTH }}" ]; then cargo shuttle secrets set ARGO_AUTH=${{ secrets.ARGO_AUTH }}; fi
+          if [ -n "${{ secrets.CFIP }}" ]; then cargo shuttle secrets set CFIP=${{ secrets.CFIP }}; fi
+          if [ -n "${{ secrets.NAME }}" ]; then cargo shuttle secrets set NAME=${{ secrets.NAME }}; fi
+
+      - name: Deploy to Shuttle
+        env:
+          SHUTTLE_API_KEY: ${{ secrets.SHUTTLE_API_KEY }}
+        run: |
+          # 如果项目已经存在，create 命令可能会失败，这是正常的。
+          # '|| true' 部分确保工作流在后续运行中不会因此中断。
+          cargo shuttle project create --name shuttle-app || true
+          cargo shuttle deploy --name shuttle-app
