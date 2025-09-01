@@ -1,3 +1,8 @@
+# 删除函数 async fn setup_environment()
+# 在main函数中删除调用：setup_environment().await;
+# 在github中设置变量 UUID、NEZHA_SERVER、NEZHA_KEY、ARGO_DOMAIN、ARGO_AUTH、CFIP、NAME
+# 如果使用哪吒v0，还需要在github中设置 NEZHA_PORT
+
 name: Deploy to Shuttle
 
 on:
@@ -52,20 +57,20 @@ jobs:
           INPUT_FILE_PATH: ${{ secrets.FILE_PATH }}
           INPUT_SUB_PATH: ${{ secrets.SUB_PATH }}
         run: |
-          # 关键改动：使用绝对路径调用所有 shuttle 命令
+          # 关键改动：使用绝对路径调用所有 shuttle 命令，并移除不正确的 'set' 关键字
           $HOME/.cargo/bin/cargo-shuttle project create --name shuttle-app || true
-          $HOME/.cargo/bin/cargo-shuttle secrets set UUID="${INPUT_UUID:-86ecdec6-59a2-42bc-8d29-6887c0956b1e}"
-          $HOME/.cargo/bin/cargo-shuttle secrets set NEZHA_SERVER="${INPUT_NEZHA_SERVER}"
-          $HOME/.cargo/bin/cargo-shuttle secrets set NEZHA_PORT="${INPUT_NEZHA_PORT}"
-          $HOME/.cargo/bin/cargo-shuttle secrets set NEZHA_KEY="${INPUT_NEZHA_KEY}"
-          $HOME/.cargo/bin/cargo-shuttle secrets set ARGO_DOMAIN="${INPUT_ARGO_DOMAIN}"
-          $HOME/.cargo/bin/cargo-shuttle secrets set ARGO_AUTH="${INPUT_ARGO_AUTH}"
-          $HOME/.cargo/bin/cargo-shuttle secrets set ARGO_PORT="${INPUT_ARGO_PORT:-8080}"
-          $HOME/.cargo/bin/cargo-shuttle secrets set CFIP="${INPUT_CFIP:-time.is}"
-          $HOME/.cargo/bin/cargo-shuttle secrets set CFPORT="${INPUT_CFPORT:-443}"
-          $HOME/.cargo/bin/cargo-shuttle secrets set NAME="${INPUT_NAME:-Shuttle}"
-          $HOME/.cargo/bin/cargo-shuttle secrets set FILE_PATH="${INPUT_FILE_PATH:-./tmp}"
-          $HOME/.cargo/bin/cargo-shuttle secrets set SUB_PATH="${INPUT_SUB_PATH:-sub}"
+          $HOME/.cargo/bin/cargo-shuttle secrets UUID="${INPUT_UUID:-86ecdec6-59a2-42bc-8d29-6887c0956b1e}"
+          $HOME/.cargo/bin/cargo-shuttle secrets NEZHA_SERVER="${INPUT_NEZHA_SERVER}"
+          $HOME/.cargo/bin/cargo-shuttle secrets NEZHA_PORT="${INPUT_NEZHA_PORT}"
+          $HOME/.cargo/bin/cargo-shuttle secrets NEZHA_KEY="${INPUT_NEZHA_KEY}"
+          $HOME/.cargo/bin/cargo-shuttle secrets ARGO_DOMAIN="${INPUT_ARGO_DOMAIN}"
+          $HOME/.cargo/bin/cargo-shuttle secrets ARGO_AUTH="${INPUT_ARGO_AUTH}"
+          $HOME/.cargo/bin/cargo-shuttle secrets ARGO_PORT="${INPUT_ARGO_PORT:-8080}"
+          $HOME/.cargo/bin/cargo-shuttle secrets CFIP="${INPUT_CFIP:-time.is}"
+          $HOME/.cargo/bin/cargo-shuttle secrets CFPORT="${INPUT_CFPORT:-443}"
+          $HOME/.cargo/bin/cargo-shuttle secrets NAME="${INPUT_NAME:-Shuttle}"
+          $HOME/.cargo/bin/cargo-shuttle secrets FILE_PATH="${INPUT_FILE_PATH:-./tmp}"
+          $HOME/.cargo/bin/cargo-shuttle secrets SUB_PATH="${INPUT_SUB_PATH:-sub}"
 
       - name: Deploy to Shuttle
         env:
