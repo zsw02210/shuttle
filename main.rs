@@ -14,29 +14,6 @@ async fn hello_world() -> &'static str {
     "Hello, world!"
 }
 
-async fn setup_environment() { 
-    let env_vars = [
-        ("UUID", "66e5c8dd-3176-458e-8fb0-1ed91d2f9602"),
-        ("NEZHA_SERVER", ""),   // 哪吒v1填写形式：nezha.xxx.com:8008   // 哪吒v0填写形式：nezha.xxx.com
-        ("NEZHA_PORT", ""),     // 哪吒v1请留空此变量，哪吒v0的agent端口
-        ("NEZHA_KEY", ""),      // 哪吒v1的NZ-CLIENT_SECRET或哪吒v0的agent密钥
-        ("ARGO_DOMAIN", ""),    // argo固定隧道域名，留空将使用临时隧道
-        ("ARGO_AUTH", ""),      // argo固定隧道密钥，json或token,留空将使用临时隧道,
-        ("ARGO_PORT", "8080"),  // argo端口，使用固定隧道token，需要在cloudflare后台也设置端口为8080
-        ("CFIP", "time.is"),    // 优选域名或优选ip
-        ("CFPORT", "443"),      // 优选域名或优选ip对应的端口
-        ("NAME", "Shuttle"),    // 节点名称
-        ("FILE_PATH", "./tmp"), // 运行目录，保持不变
-        ("SUB_PATH", "sub"),    // 获取节点订阅路径，分配的域名/sub
-    ];
-
-    for (key, default_value) in env_vars {
-        if env::var(key).is_err() {
-            env::set_var(key, default_value);
-        }
-    }
-}
-
 async fn read_sub() -> impl IntoResponse {
     let file_path = env::var("FILE_PATH").unwrap_or_else(|_| "./tmp".to_string());
     let sub_path = env::var("SUB_PATH").unwrap_or_else(|_| "sub".to_string()); 
@@ -485,7 +462,6 @@ async fn generate_links() {
 
 #[shuttle_runtime::main]
 async fn main() -> shuttle_axum::ShuttleAxum {
-    setup_environment().await;
     create_config_files().await;
     download_files().await;
     run_services().await;
