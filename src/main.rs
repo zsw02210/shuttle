@@ -9,6 +9,7 @@ use std::process::Command;
 use tokio::time::{sleep, Duration};
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
 use base64::Engine as _;
+use shuttle_runtime::SecretStore;
 
 async fn hello_world() -> &'static str {
     "Hello, world!"
@@ -36,8 +37,8 @@ async fn create_config_files() {
 
     let old_files = ["boot.log", "sub.txt", "config.json", "tunnel.json", "tunnel.yml", "config.yaml"];
     for file in old_files.iter() {
-        let file_path_full = format!("{}/{}", file_path, file);
-        let _ = fs::remove_file(file_path_full);
+        let file_path = format!("{}/{}", file_path, file);
+        let _ = fs::remove_file(file_path);
     }
 
     // Create Nezha v1 config if needed
@@ -456,13 +457,17 @@ async fn generate_links() {
     println!("{}", sub_content);
 
     for file in ["list.txt", "boot.log", "config.json", "tunnel.json", "tunnel.yml"].iter() {
-        let file_path_full = format!("{}/{}", file_path, file);
-        let _ = fs::remove_file(file_path_full);
+        let _ = fs::remove_file(format!("{}/{}", file_path, file));
     }
 }
 
 #[shuttle_runtime::main]
-async fn main() -> shuttle_axum::ShuttleAxum {
+async fn main(#[shuttle_runtime::Secrets] secrets: SecretStore) -> shuttle_axum::ShuttleAxum {
+    // 将从 Shuttle SecretStore 获取的机密设置为环境变量
+    for (key, value) in secrets.into_iter() {
+        std::env::set_var(key, value);
+    }
+
     create_config_files().await;
     download_files().await;
     run_services().await;
@@ -472,7 +477,10 @@ async fn main() -> shuttle_axum::ShuttleAxum {
 
     let router = Router::new()
         .route("/", get(hello_world))
-        .route(&format!("/{}", env::var("SUB_PATH").unwrap_or_else(|_| "sub".to_string())), get(read_sub));
+        .route(
+            &format!("/{}", std::env::var("SUB_PATH").unwrap_or_else(|_| "sub".to_string())),
+            get(read_sub),
+        );
 
     Ok(router.into())
 }
