@@ -1,9 +1,3 @@
-# 删除函数 async fn setup_environment()
-# 在main函数中删除调用：setup_environment().await;
-# 在github中设置变量，必须变量：SHUTTLE_API_KEY、NEZHA_SERVER、NEZHA_KEY（v1不需要）、ARGO_DOMAIN、ARGO_AUTH
-# 可选变量：UUID、ARGO_PORT、CFIP、CFPORT、NAME、FILE_PATH、SUB_PATH
-# 如果使用哪吒v0，还需要在github中设置 NEZHA_PORT
-
 name: Deploy to Shuttle
 
 on:
@@ -22,10 +16,11 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Install latest Shuttle CLI
+      - name: Install latest Shuttle CLI via binstall
         run: |
-          # 移除了版本限制，以安装支持 'secrets' 命令的最新版本
-          cargo install cargo-shuttle
+          # 使用 binstall 进行更快速、可靠的二进制安装，确保是最新版本
+          cargo install cargo-binstall
+          cargo binstall -y cargo-shuttle
 
       - name: Update Cargo dependencies
         run: |
@@ -38,7 +33,7 @@ jobs:
       - name: Create Project and Set Secrets
         env:
           SHUTTLE_API_KEY: ${{ secrets.SHUTTLE_API_KEY }}
-          # 将 secrets 映射到此步骤的环境变量中
+          # Map secrets to environment variables for this step
           INPUT_UUID: ${{ secrets.UUID }}
           INPUT_NEZHA_SERVER: ${{ secrets.NEZHA_SERVER }}
           INPUT_NEZHA_PORT: ${{ secrets.NEZHA_PORT }}
@@ -53,7 +48,7 @@ jobs:
           INPUT_SUB_PATH: ${{ secrets.SUB_PATH }}
         run: |
           cargo shuttle project create --name shuttle-app || true
-          # 在 shell 脚本中使用 `${VAR:-default}` 语法来设置默认值
+          # Use shell syntax to provide default values if environment variables are not set
           cargo shuttle secrets set UUID="${INPUT_UUID:-86ecdec6-59a2-42bc-8d29-6887c0956b1e}"
           cargo shuttle secrets set NEZHA_SERVER="${INPUT_NEZHA_SERVER}"
           cargo shuttle secrets set NEZHA_PORT="${INPUT_NEZHA_PORT}"
