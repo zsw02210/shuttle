@@ -16,7 +16,7 @@ regex = "1.10.4"
 
 [[bin]]
 name = "shuttle-app"
-path = "main.rs"
+path = "src/main.rs"
 
 [profile.release]
 strip = true
