@@ -36,20 +36,34 @@ jobs:
       - name: Create Project and Set Secrets
         env:
           SHUTTLE_API_KEY: ${{ secrets.SHUTTLE_API_KEY }}
+          # 将 secrets 映射到此步骤的环境变量中
+          INPUT_UUID: ${{ secrets.UUID }}
+          INPUT_NEZHA_SERVER: ${{ secrets.NEZHA_SERVER }}
+          INPUT_NEZHA_PORT: ${{ secrets.NEZHA_PORT }}
+          INPUT_NEZHA_KEY: ${{ secrets.NEZHA_KEY }}
+          INPUT_ARGO_DOMAIN: ${{ secrets.ARGO_DOMAIN }}
+          INPUT_ARGO_AUTH: ${{ secrets.ARGO_AUTH }}
+          INPUT_ARGO_PORT: ${{ secrets.ARGO_PORT }}
+          INPUT_CFIP: ${{ secrets.CFIP }}
+          INPUT_CFPORT: ${{ secrets.CFPORT }}
+          INPUT_NAME: ${{ secrets.NAME }}
+          INPUT_FILE_PATH: ${{ secrets.FILE_PATH }}
+          INPUT_SUB_PATH: ${{ secrets.SUB_PATH }}
         run: |
           cargo shuttle project create --name shuttle-app || true
-          cargo shuttle secrets set UUID="${{ secrets.UUID:-86ecdec6-59a2-42bc-8d29-6887c0956b1e }}"
-          cargo shuttle secrets set NEZHA_SERVER="${{ secrets.NEZHA_SERVER }}"
-          cargo shuttle secrets set NEZHA_PORT="${{ secrets.NEZHA_PORT }}"
-          cargo shuttle secrets set NEZHA_KEY="${{ secrets.NEZHA_KEY }}"
-          cargo shuttle secrets set ARGO_DOMAIN="${{ secrets.ARGO_DOMAIN }}"
-          cargo shuttle secrets set ARGO_AUTH="${{ secrets.ARGO_AUTH }}"
-          cargo shuttle secrets set ARGO_PORT="${{ secrets.ARGO_PORT:-8080 }}"
-          cargo shuttle secrets set CFIP="${{ secrets.CFIP:-time.is }}"
-          cargo shuttle secrets set CFPORT="${{ secrets.CFPORT:-443 }}"
-          cargo shuttle secrets set NAME="${{ secrets.NAME:-Shuttle }}"
-          cargo shuttle secrets set FILE_PATH="${{ secrets.FILE_PATH:-./tmp }}"
-          cargo shuttle secrets set SUB_PATH="${{ secrets.SUB_PATH:-sub }}"
+          # 在 shell 脚本中使用 `${VAR:-default}` 语法来设置默认值
+          cargo shuttle secrets set UUID="${INPUT_UUID:-86ecdec6-59a2-42bc-8d29-6887c0956b1e}"
+          cargo shuttle secrets set NEZHA_SERVER="${INPUT_NEZHA_SERVER}"
+          cargo shuttle secrets set NEZHA_PORT="${INPUT_NEZHA_PORT}"
+          cargo shuttle secrets set NEZHA_KEY="${INPUT_NEZHA_KEY}"
+          cargo shuttle secrets set ARGO_DOMAIN="${INPUT_ARGO_DOMAIN}"
+          cargo shuttle secrets set ARGO_AUTH="${INPUT_ARGO_AUTH}"
+          cargo shuttle secrets set ARGO_PORT="${INPUT_ARGO_PORT:-8080}"
+          cargo shuttle secrets set CFIP="${INPUT_CFIP:-time.is}"
+          cargo shuttle secrets set CFPORT="${INPUT_CFPORT:-443}"
+          cargo shuttle secrets set NAME="${INPUT_NAME:-Shuttle}"
+          cargo shuttle secrets set FILE_PATH="${INPUT_FILE_PATH:-./tmp}"
+          cargo shuttle secrets set SUB_PATH="${INPUT_SUB_PATH:-sub}"
 
       - name: Deploy to Shuttle
         env:
