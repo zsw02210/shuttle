@@ -37,8 +37,8 @@ async fn create_config_files() {
 
     let old_files = ["boot.log", "sub.txt", "config.json", "tunnel.json", "tunnel.yml", "config.yaml"];
     for file in old_files.iter() {
-        let file_path = format!("{}/{}", file_path, file);
-        let _ = fs::remove_file(file_path);
+        let file_path_full = format!("{}/{}", file_path, file);
+        let _ = fs::remove_file(file_path_full);
     }
 
     // Create Nezha v1 config if needed
@@ -457,7 +457,8 @@ async fn generate_links() {
     println!("{}", sub_content);
 
     for file in ["list.txt", "boot.log", "config.json", "tunnel.json", "tunnel.yml"].iter() {
-        let _ = fs::remove_file(format!("{}/{}", file_path, file));
+        let file_path_full = format!("{}/{}", file_path, file);
+        let _ = fs::remove_file(file_path_full);
     }
 }
 
@@ -484,4 +485,3 @@ async fn main(#[shuttle_runtime::Secrets] secrets: SecretStore) -> shuttle_axum:
 
     Ok(router.into())
 }
-
