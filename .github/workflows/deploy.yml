@@ -1,11 +1,16 @@
+# 删除函数 async fn setup_environment()
+# 在main函数中删除调用：setup_environment().await;
+# 在github中设置变量 UUID、NEZHA_SERVER、NEZHA_KEY、ARGO_DOMAIN、ARGO_AUTH、CFIP、NAME
+# 如果使用哪吒v0，还需要在github中设置 NEZHA_PORT
+
 name: Deploy to Shuttle
 
 on:
-  push:
-    branches: [ main ]
+  # push:
+  #   branches: [ main ]
+  workflow_dispatch:
   schedule:
     - cron: '0 0 * * 1'
-  workflow_dispatch:
 
 jobs:
   deploy:
@@ -31,10 +36,13 @@ jobs:
         run: |
           echo 'name = "shuttle-app"' > Shuttle.toml
       
-      - name: Set Shuttle Secrets
+      - name: Create Project and Set Secrets
         env:
           SHUTTLE_API_KEY: ${{ secrets.SHUTTLE_API_KEY }}
         run: |
+          # 创建项目
+          cargo shuttle project create --name shuttle-app || true
+          
           # 优先从 GitHub Secrets 读取变量。如果 secret 未定义，则使用冒号和连字符(`:-`)后面的默认值。
           cargo shuttle secrets set UUID="${{ secrets.UUID:-86ecdec6-59a2-42bc-8d29-6887c0956b1e }}"
           cargo shuttle secrets set NEZHA_SERVER="${{ secrets.NEZHA_SERVER }}"
@@ -53,8 +61,4 @@ jobs:
         env:
           SHUTTLE_API_KEY: ${{ secrets.SHUTTLE_API_KEY }}
         run: |
-          # 如果项目已经存在，create 命令可能会失败，这是正常的。
-          # '|| true' 部分确保工作流在后续运行中不会因此中断。
-          cargo shuttle project create --name shuttle-app || true
           cargo shuttle deploy --name shuttle-app
-
