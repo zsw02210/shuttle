@@ -4,19 +4,19 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-axum = { version = "0.8.1", features = ["macros"] }
+axum = { version = "0.7.5", features = ["macros"] }
 shuttle-axum = "0.52.0"
 shuttle-runtime = "0.52.0"
 tokio = { version = "1.38.0", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
-reqwest = "0.11.25"
+reqwest = "0.12.5" # Updated from 0.11.25 for better compatibility
 serde_json = "1.0.117"
 base64 = "0.22.1"
 regex = "1.10.4"
 
 [[bin]]
 name = "shuttle-app"
-path = "main.rs"
+path = "src/main.rs"
 
 [profile.release]
 strip = true
