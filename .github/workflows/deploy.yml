@@ -1,8 +1,3 @@
-# 删除函数 async fn setup_environment()
-# 在main函数中删除调用：setup_environment().await;
-# 在github中设置变量 UUID、NEZHA_SERVER、NEZHA_KEY、ARGO_DOMAIN、ARGO_AUTH、CFIP、NAME
-# 如果使用哪吒v0，还需要在github中设置 NEZHA_PORT
-
 name: Deploy to Shuttle
 
 on:
@@ -24,7 +19,7 @@ jobs:
       - name: Install latest Shuttle CLI
         run: cargo install cargo-shuttle
 
-      # --- 最终解决方案：创建 Secrets.toml 文件来传递机密信息 ---
+      # 创建 Secrets.toml 文件来传递机密信息
       - name: Create Secrets.toml from GitHub Secrets
         env:
           # 将所有需要的 secrets 映射到环境变量
@@ -42,7 +37,6 @@ jobs:
           SUB_PATH: ${{ secrets.SUB_PATH }}
         run: |
           # 动态生成 Secrets.toml 文件
-          # 使用 shell 语法为未设置的 secret 提供默认值
           echo "UUID = '${UUID:-86ecdec6-59a2-42bc-8d29-6887c0956b1e}'" >> Secrets.toml
           echo "NEZHA_SERVER = '${NEZHA_SERVER}'" >> Secrets.toml
           echo "NEZHA_PORT = '${NEZHA_PORT}'" >> Secrets.toml
@@ -65,4 +59,3 @@ jobs:
         run: |
           # deploy 命令会自动读取 Secrets.toml 并设置机密
           cargo shuttle deploy --name shuttle-app
-
