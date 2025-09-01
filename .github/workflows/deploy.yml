@@ -31,16 +31,14 @@ jobs:
         run: |
           cargo install cargo-binstall
           cargo binstall -y --force cargo-shuttle
-          # 强制将 cargo bin 目录添加到 PATH 的最前面，确保执行的是新安装的版本
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          echo "Verifying Shuttle CLI version..."
-          # 打印版本号以供调试
-          cargo shuttle --version
+          echo "Verifying Shuttle CLI version with absolute path..."
+          # 使用绝对路径来调用，确保版本正确
+          $HOME/.cargo/bin/cargo-shuttle --version
 
       - name: Create Project and Set Secrets
         env:
           SHUTTLE_API_KEY: ${{ secrets.SHUTTLE_API_KEY }}
-          # 将 secrets 映射到环境变量，以便在 run 脚本中使用
+          # 将 secrets 映射到环境变量
           INPUT_UUID: ${{ secrets.UUID }}
           INPUT_NEZHA_SERVER: ${{ secrets.NEZHA_SERVER }}
           INPUT_NEZHA_PORT: ${{ secrets.NEZHA_PORT }}
@@ -54,23 +52,24 @@ jobs:
           INPUT_FILE_PATH: ${{ secrets.FILE_PATH }}
           INPUT_SUB_PATH: ${{ secrets.SUB_PATH }}
         run: |
-          cargo shuttle project create --name shuttle-app || true
-          # 使用 shell 语法为未设置的环境变量提供默认值
-          cargo shuttle secrets set UUID="${INPUT_UUID:-86ecdec6-59a2-42bc-8d29-6887c0956b1e}"
-          cargo shuttle secrets set NEZHA_SERVER="${INPUT_NEZHA_SERVER}"
-          cargo shuttle secrets set NEZHA_PORT="${INPUT_NEZHA_PORT}"
-          cargo shuttle secrets set NEZHA_KEY="${INPUT_NEZHA_KEY}"
-          cargo shuttle secrets set ARGO_DOMAIN="${INPUT_ARGO_DOMAIN}"
-          cargo shuttle secrets set ARGO_AUTH="${INPUT_ARGO_AUTH}"
-          cargo shuttle secrets set ARGO_PORT="${INPUT_ARGO_PORT:-8080}"
-          cargo shuttle secrets set CFIP="${INPUT_CFIP:-time.is}"
-          cargo shuttle secrets set CFPORT="${INPUT_CFPORT:-443}"
-          cargo shuttle secrets set NAME="${INPUT_NAME:-Shuttle}"
-          cargo shuttle secrets set FILE_PATH="${INPUT_FILE_PATH:-./tmp}"
-          cargo shuttle secrets set SUB_PATH="${INPUT_SUB_PATH:-sub}"
+          # 关键改动：使用绝对路径调用所有 shuttle 命令
+          $HOME/.cargo/bin/cargo-shuttle project create --name shuttle-app || true
+          $HOME/.cargo/bin/cargo-shuttle secrets set UUID="${INPUT_UUID:-86ecdec6-59a2-42bc-8d29-6887c0956b1e}"
+          $HOME/.cargo/bin/cargo-shuttle secrets set NEZHA_SERVER="${INPUT_NEZHA_SERVER}"
+          $HOME/.cargo/bin/cargo-shuttle secrets set NEZHA_PORT="${INPUT_NEZHA_PORT}"
+          $HOME/.cargo/bin/cargo-shuttle secrets set NEZHA_KEY="${INPUT_NEZHA_KEY}"
+          $HOME/.cargo/bin/cargo-shuttle secrets set ARGO_DOMAIN="${INPUT_ARGO_DOMAIN}"
+          $HOME/.cargo/bin/cargo-shuttle secrets set ARGO_AUTH="${INPUT_ARGO_AUTH}"
+          $HOME/.cargo/bin/cargo-shuttle secrets set ARGO_PORT="${INPUT_ARGO_PORT:-8080}"
+          $HOME/.cargo/bin/cargo-shuttle secrets set CFIP="${INPUT_CFIP:-time.is}"
+          $HOME/.cargo/bin/cargo-shuttle secrets set CFPORT="${INPUT_CFPORT:-443}"
+          $HOME/.cargo/bin/cargo-shuttle secrets set NAME="${INPUT_NAME:-Shuttle}"
+          $HOME/.cargo/bin/cargo-shuttle secrets set FILE_PATH="${INPUT_FILE_PATH:-./tmp}"
+          $HOME/.cargo/bin/cargo-shuttle secrets set SUB_PATH="${INPUT_SUB_PATH:-sub}"
 
       - name: Deploy to Shuttle
         env:
           SHUTTLE_API_KEY: ${{ secrets.SHUTTLE_API_KEY }}
         run: |
-          cargo shuttle deploy --name shuttle-app
+          # 关键改动：使用绝对路径调用 deploy 命令
+          $HOME/.cargo/bin/cargo-shuttle deploy --name shuttle-app
