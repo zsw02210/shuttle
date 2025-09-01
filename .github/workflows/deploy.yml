@@ -11,29 +11,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
 
-      - name: Install latest Shuttle CLI via binstall
+      - name: Install latest Shuttle CLI and verify
         run: |
-          # 使用 binstall 进行更快速、可靠的二进制安装，确保是最新版本
           cargo install cargo-binstall
-          cargo binstall -y cargo-shuttle
-
-      - name: Update Cargo dependencies
-        run: |
-          cargo update
-
-      - name: Create Shuttle.toml
-        run: |
-          echo 'name = "shuttle-app"' > Shuttle.toml
+          cargo binstall -y --force cargo-shuttle
+          # 强制将 cargo bin 目录添加到 PATH 的最前面，确保执行的是新安装的版本
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          echo "Verifying Shuttle CLI version..."
+          # 打印版本号以供调试
+          cargo shuttle --version
 
       - name: Create Project and Set Secrets
         env:
           SHUTTLE_API_KEY: ${{ secrets.SHUTTLE_API_KEY }}
-          # Map secrets to environment variables for this step
+          # 将 secrets 映射到环境变量，以便在 run 脚本中使用
           INPUT_UUID: ${{ secrets.UUID }}
           INPUT_NEZHA_SERVER: ${{ secrets.NEZHA_SERVER }}
           INPUT_NEZHA_PORT: ${{ secrets.NEZHA_PORT }}
@@ -48,7 +55,7 @@ jobs:
           INPUT_SUB_PATH: ${{ secrets.SUB_PATH }}
         run: |
           cargo shuttle project create --name shuttle-app || true
-          # Use shell syntax to provide default values if environment variables are not set
+          # 使用 shell 语法为未设置的环境变量提供默认值
           cargo shuttle secrets set UUID="${INPUT_UUID:-86ecdec6-59a2-42bc-8d29-6887c0956b1e}"
           cargo shuttle secrets set NEZHA_SERVER="${INPUT_NEZHA_SERVER}"
           cargo shuttle secrets set NEZHA_PORT="${INPUT_NEZHA_PORT}"
