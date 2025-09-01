@@ -1,16 +1,13 @@
 name: Deploy to Shuttle
 
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
   schedule:
-    - cron: '0 0 1,30 * *'  # 每30天运行一次(UTC时间0点)
+    - cron: '0 0 * * 1'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -19,21 +16,46 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Install specific version of Shuttle CLI
-        run: |
-          cargo install cargo-shuttle --version 0.52.0 --locked --force
+      - name: Install latest Shuttle CLI
+        run: cargo install cargo-shuttle
 
-      - name: Update Cargo dependencies
+      # 创建 Secrets.toml 文件来传递机密信息
+      - name: Create Secrets.toml from GitHub Secrets
+        env:
+          # 将所有需要的 secrets 映射到环境变量
+          UUID: ${{ secrets.UUID }}
+          NEZHA_SERVER: ${{ secrets.NEZHA_SERVER }}
+          NEZHA_PORT: ${{ secrets.NEZHA_PORT }}
+          NEZHA_KEY: ${{ secrets.NEZHA_KEY }}
+          ARGO_DOMAIN: ${{ secrets.ARGO_DOMAIN }}
+          ARGO_AUTH: ${{ secrets.ARGO_AUTH }}
+          ARGO_PORT: ${{ secrets.ARGO_PORT }}
+          CFIP: ${{ secrets.CFIP }}
+          CFPORT: ${{ secrets.CFPORT }}
+          NAME: ${{ secrets.NAME }}
+          FILE_PATH: ${{ secrets.FILE_PATH }}
+          SUB_PATH: ${{ secrets.SUB_PATH }}
         run: |
-          cargo update
-
-      - name: Create Shuttle.toml
-        run: |
-          echo 'name = "shuttle-app"' > Shuttle.toml
+          # 动态生成 Secrets.toml 文件
+          echo "UUID = '${UUID:-86ecdec6-59a2-42bc-8d29-6887c0956b1e}'" >> Secrets.toml
+          echo "NEZHA_SERVER = '${NEZHA_SERVER}'" >> Secrets.toml
+          echo "NEZHA_PORT = '${NEZHA_PORT}'" >> Secrets.toml
+          echo "NEZHA_KEY = '${NEZHA_KEY}'" >> Secrets.toml
+          echo "ARGO_DOMAIN = '${ARGO_DOMAIN}'" >> Secrets.toml
+          echo "ARGO_AUTH = '${ARGO_AUTH}'" >> Secrets.toml
+          echo "ARGO_PORT = '${ARGO_PORT:-8080}'" >> Secrets.toml
+          echo "CFIP = '${CFIP:-time.is}'" >> Secrets.toml
+          echo "CFPORT = '${CFPORT:-443}'" >> Secrets.toml
+          echo "NAME = '${NAME:-Shuttle}'" >> Secrets.toml
+          echo "FILE_PATH = '${FILE_PATH:-./tmp}'" >> Secrets.toml
+          echo "SUB_PATH = '${SUB_PATH:-sub}'" >> Secrets.toml
+          
+          echo "Secrets.toml created successfully:"
+          cat Secrets.toml
 
       - name: Deploy to Shuttle
         env:
           SHUTTLE_API_KEY: ${{ secrets.SHUTTLE_API_KEY }}
         run: |
-          cargo shuttle project create --name shuttle-app
+          # deploy 命令会自动读取 Secrets.toml 并设置机密
           cargo shuttle deploy --name shuttle-app
