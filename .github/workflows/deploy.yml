@@ -1,3 +1,8 @@
+# 删除函数 async fn setup_environment()
+# 在main函数中删除调用：setup_environment().await;
+# 在github中设置变量 UUID、NEZHA_SERVER、NEZHA_KEY、ARGO_DOMAIN、ARGO_AUTH、CFIP、NAME
+# 如果使用哪吒v0，还需要在github中设置 NEZHA_PORT
+
 name: Deploy to Shuttle
 
 on:
@@ -16,46 +21,48 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Install latest Shuttle CLI and verify
-        run: |
-          cargo install cargo-binstall
-          cargo binstall -y --force cargo-shuttle
-          echo "Verifying Shuttle CLI version..."
-          cargo shuttle --version
+      - name: Install latest Shuttle CLI
+        run: cargo install cargo-shuttle
 
-      - name: Create Project and Set Secrets
+      # --- 最终解决方案：创建 Secrets.toml 文件来传递机密信息 ---
+      - name: Create Secrets.toml from GitHub Secrets
         env:
-          SHUTTLE_API_KEY: ${{ secrets.SHUTTLE_API_KEY }}
-          # 将 secrets 映射到环境变量
-          INPUT_UUID: ${{ secrets.UUID }}
-          INPUT_NEZHA_SERVER: ${{ secrets.NEZHA_SERVER }}
-          INPUT_NEZHA_PORT: ${{ secrets.NEZHA_PORT }}
-          INPUT_NEZHA_KEY: ${{ secrets.NEZHA_KEY }}
-          INPUT_ARGO_DOMAIN: ${{ secrets.ARGO_DOMAIN }}
-          INPUT_ARGO_AUTH: ${{ secrets.ARGO_AUTH }}
-          INPUT_ARGO_PORT: ${{ secrets.ARGO_PORT }}
-          INPUT_CFIP: ${{ secrets.CFIP }}
-          INPUT_CFPORT: ${{ secrets.CFPORT }}
-          INPUT_NAME: ${{ secrets.NAME }}
-          INPUT_FILE_PATH: ${{ secrets.FILE_PATH }}
-          INPUT_SUB_PATH: ${{ secrets.SUB_PATH }}
+          # 将所有需要的 secrets 映射到环境变量
+          UUID: ${{ secrets.UUID }}
+          NEZHA_SERVER: ${{ secrets.NEZHA_SERVER }}
+          NEZHA_PORT: ${{ secrets.NEZHA_PORT }}
+          NEZHA_KEY: ${{ secrets.NEZHA_KEY }}
+          ARGO_DOMAIN: ${{ secrets.ARGO_DOMAIN }}
+          ARGO_AUTH: ${{ secrets.ARGO_AUTH }}
+          ARGO_PORT: ${{ secrets.ARGO_PORT }}
+          CFIP: ${{ secrets.CFIP }}
+          CFPORT: ${{ secrets.CFPORT }}
+          NAME: ${{ secrets.NAME }}
+          FILE_PATH: ${{ secrets.FILE_PATH }}
+          SUB_PATH: ${{ secrets.SUB_PATH }}
         run: |
-          cargo shuttle project create --name shuttle-app || true
-          cargo shuttle secrets UUID="${INPUT_UUID:-86ecdec6-59a2-42bc-8d29-6887c0956b1e}"
-          cargo shuttle secrets NEZHA_SERVER="${INPUT_NEZHA_SERVER}"
-          cargo shuttle secrets NEZHA_PORT="${INPUT_NEZHA_PORT}"
-          cargo shuttle secrets NEZHA_KEY="${INPUT_NEZHA_KEY}"
-          cargo shuttle secrets ARGO_DOMAIN="${INPUT_ARGO_DOMAIN}"
-          cargo shuttle secrets ARGO_AUTH="${INPUT_ARGO_AUTH}"
-          cargo shuttle secrets ARGO_PORT="${INPUT_ARGO_PORT:-8080}"
-          cargo shuttle secrets CFIP="${INPUT_CFIP:-time.is}"
-          cargo shuttle secrets CFPORT="${INPUT_CFPORT:-443}"
-          cargo shuttle secrets NAME="${INPUT_NAME:-Shuttle}"
-          cargo shuttle secrets FILE_PATH="${INPUT_FILE_PATH:-./tmp}"
-          cargo shuttle secrets SUB_PATH="${INPUT_SUB_PATH:-sub}"
+          # 动态生成 Secrets.toml 文件
+          # 使用 shell 语法为未设置的 secret 提供默认值
+          echo "UUID = '${UUID:-86ecdec6-59a2-42bc-8d29-6887c0956b1e}'" >> Secrets.toml
+          echo "NEZHA_SERVER = '${NEZHA_SERVER}'" >> Secrets.toml
+          echo "NEZHA_PORT = '${NEZHA_PORT}'" >> Secrets.toml
+          echo "NEZHA_KEY = '${NEZHA_KEY}'" >> Secrets.toml
+          echo "ARGO_DOMAIN = '${ARGO_DOMAIN}'" >> Secrets.toml
+          echo "ARGO_AUTH = '${ARGO_AUTH}'" >> Secrets.toml
+          echo "ARGO_PORT = '${ARGO_PORT:-8080}'" >> Secrets.toml
+          echo "CFIP = '${CFIP:-time.is}'" >> Secrets.toml
+          echo "CFPORT = '${CFPORT:-443}'" >> Secrets.toml
+          echo "NAME = '${NAME:-Shuttle}'" >> Secrets.toml
+          echo "FILE_PATH = '${FILE_PATH:-./tmp}'" >> Secrets.toml
+          echo "SUB_PATH = '${SUB_PATH:-sub}'" >> Secrets.toml
+          
+          echo "Secrets.toml created successfully:"
+          cat Secrets.toml
 
       - name: Deploy to Shuttle
         env:
           SHUTTLE_API_KEY: ${{ secrets.SHUTTLE_API_KEY }}
         run: |
+          # deploy 命令会自动读取 Secrets.toml 并设置机密
           cargo shuttle deploy --name shuttle-app
+
