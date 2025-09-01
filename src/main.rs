@@ -1,4 +1,4 @@
-use axum::{routing::get, Router, response::IntoResponse};
+use shuttle_axum::axum::{routing::get, Router, response::IntoResponse};
 use regex::Regex;
 use serde_json::{json, Value};
 use std::env;
@@ -485,3 +485,4 @@ async fn main(#[shuttle_runtime::Secrets] secrets: SecretStore) -> shuttle_axum:
 
     Ok(router.into())
 }
+
