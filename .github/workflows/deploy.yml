@@ -1,11 +1,11 @@
 name: Deploy to Shuttle
 
 on:
-  # push:
-  #   branches: [ main ]
-  workflow_dispatch:
+  push:
+    branches: [ main ]
   schedule:
     - cron: '0 0 * * 1'
+  workflow_dispatch:
 
 jobs:
   deploy:
