@@ -18,8 +18,13 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Install latest Shuttle CLI
-        run: cargo install cargo-shuttle
+      - name: Install Shuttle CLI
+        run: |
+          cargo install cargo-shuttle --version 0.52.0 --locked --force
+
+      - name: Update Cargo dependencies
+        run: |
+          cargo update
 
       # 创建 Secrets.toml 文件来传递机密信息
       - name: Create Secrets.toml from GitHub Secrets
