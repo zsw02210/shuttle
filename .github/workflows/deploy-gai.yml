@@ -1,4 +1,9 @@
-name: Deploy to Shuttle mod
+# 删除函数 async fn setup_environment()
+# 在main函数中删除调用：setup_environment().await;
+# 在github中设置变量 UUID、NEZHA_SERVER、NEZHA_KEY、ARGO_DOMAIN、ARGO_AUTH、CFIP、NAME
+# 如果使用哪吒v0，还需要在github中设置 NEZHA_PORT
+
+name: Deploy to Shuttle
 
 on:
   workflow_dispatch:
