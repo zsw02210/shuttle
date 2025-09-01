@@ -51,7 +51,7 @@ jobs:
           echo "ARGO_DOMAIN = '${ARGO_DOMAIN}'" >> Secrets.toml
           echo "ARGO_AUTH = '${ARGO_AUTH}'" >> Secrets.toml
           echo "ARGO_PORT = '${ARGO_PORT:-8080}'" >> Secrets.toml
-          echo "CFIP = '${CFIP:-time.is}'" >> Secrets.toml
+          echo "CFIP = '${CFIP:-cf.877774.xyz}'" >> Secrets.toml
           echo "CFPORT = '${CFPORT:-443}'" >> Secrets.toml
           echo "NAME = '${NAME:-Shuttle}'" >> Secrets.toml
           echo "FILE_PATH = '${FILE_PATH:-./tmp}'" >> Secrets.toml
