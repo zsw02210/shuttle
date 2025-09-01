@@ -6,8 +6,6 @@
 name: Deploy to Shuttle
 
 on:
-  # push:
-  #   branches: [ main ]
   workflow_dispatch:
   schedule:
     - cron: '0 0 * * 1'
@@ -36,14 +34,16 @@ jobs:
         run: |
           echo 'name = "shuttle-app"' > Shuttle.toml
       
+      # --- 创建项目并设置 Secrets (若不存在则使用默认值) ---
       - name: Create Project and Set Secrets
         env:
           SHUTTLE_API_KEY: ${{ secrets.SHUTTLE_API_KEY }}
         run: |
-          # 创建项目
+          # 必须先创建项目，才能为其设置 secrets。 '|| true' 可以防止在项目已存在时出错。
           cargo shuttle project create --name shuttle-app || true
           
           # 优先从 GitHub Secrets 读取变量。如果 secret 未定义，则使用冒号和连字符(`:-`)后面的默认值。
+          # 使用双引号是一种更安全的做法，可以防止值中包含空格时出现问题。
           cargo shuttle secrets set UUID="${{ secrets.UUID:-86ecdec6-59a2-42bc-8d29-6887c0956b1e }}"
           cargo shuttle secrets set NEZHA_SERVER="${{ secrets.NEZHA_SERVER }}"
           cargo shuttle secrets set NEZHA_PORT="${{ secrets.NEZHA_PORT }}"
@@ -61,4 +61,5 @@ jobs:
         env:
           SHUTTLE_API_KEY: ${{ secrets.SHUTTLE_API_KEY }}
         run: |
+          # 项目已创建且 secrets 已设置，现在直接部署即可。
           cargo shuttle deploy --name shuttle-app
