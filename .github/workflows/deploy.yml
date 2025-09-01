@@ -1,6 +1,7 @@
 # 删除函数 async fn setup_environment()
 # 在main函数中删除调用：setup_environment().await;
-# 在github中设置变量 UUID、NEZHA_SERVER、NEZHA_KEY、ARGO_DOMAIN、ARGO_AUTH、CFIP、NAME
+# 在github中设置变量，必须变量：SHUTTLE_API_KEY、NEZHA_SERVER、NEZHA_KEY（v1不需要）、ARGO_DOMAIN、ARGO_AUTH
+# 可选变量：UUID、ARGO_PORT、CFIP、CFPORT、NAME、FILE_PATH、SUB_PATH
 # 如果使用哪吒v0，还需要在github中设置 NEZHA_PORT
 
 name: Deploy to Shuttle
@@ -21,9 +22,10 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Install specific version of Shuttle CLI
+      - name: Install latest Shuttle CLI
         run: |
-          cargo install cargo-shuttle --version 0.52.0 --locked --force
+          # 移除了版本限制，以安装支持 'secrets' 命令的最新版本
+          cargo install cargo-shuttle
 
       - name: Update Cargo dependencies
         run: |
