@@ -1,6 +1,7 @@
 # 删除函数 async fn setup_environment()
-# 在main函数中删除调用：create_config_files().await;
-# 在github中设置变量 UUID、NEZHA_SERVER、NEZHA_PORT(v1不需要)、NEZHA_KEY、ARGO_DOMAIN、ARGO_AUTH、CFIP、NAME
+# 在main函数中删除调用：setup_environment().await;
+# 在github中设置变量 UUID、NEZHA_SERVER、NEZHA_KEY、ARGO_DOMAIN、ARGO_AUTH、CFIP、NAME
+# 如果使用哪吒v0，还需要在github中设置 NEZHA_PORT
 
 name: Deploy to Shuttle
 
@@ -35,20 +36,25 @@ jobs:
         run: |
           echo 'name = "shuttle-app"' > Shuttle.toml
       
-      # --- 新增步骤：从 GitHub Secrets 设置 Shuttle 的 Secrets ---
+      # --- 从 GitHub Secrets 设置 Shuttle 的 Secrets (若不存在则使用默认值) ---
       - name: Set Shuttle Secrets
         env:
           SHUTTLE_API_KEY: ${{ secrets.SHUTTLE_API_KEY }}
         run: |
-          # 'if' 语句可以防止在 GitHub 中未定义 secret 时设置一个空值
-          if [ -n "${{ secrets.UUID }}" ]; then cargo shuttle secrets set UUID=${{ secrets.UUID }}; fi
-          if [ -n "${{ secrets.NEZHA_SERVER }}" ]; then cargo shuttle secrets set NEZHA_SERVER=${{ secrets.NEZHA_SERVER }}; fi
-          if [ -n "${{ secrets.NEZHA_PORT }}" ]; then cargo shuttle secrets set NEZHA_PORT=${{ secrets.NEZHA_PORT }}; fi
-          if [ -n "${{ secrets.NEZHA_KEY }}" ]; then cargo shuttle secrets set NEZHA_KEY=${{ secrets.NEZHA_KEY }}; fi
-          if [ -n "${{ secrets.ARGO_DOMAIN }}" ]; then cargo shuttle secrets set ARGO_DOMAIN=${{ secrets.ARGO_DOMAIN }}; fi
-          if [ -n "${{ secrets.ARGO_AUTH }}" ]; then cargo shuttle secrets set ARGO_AUTH=${{ secrets.ARGO_AUTH }}; fi
-          if [ -n "${{ secrets.CFIP }}" ]; then cargo shuttle secrets set CFIP=${{ secrets.CFIP }}; fi
-          if [ -n "${{ secrets.NAME }}" ]; then cargo shuttle secrets set NAME=${{ secrets.NAME }}; fi
+          # 优先从 GitHub Secrets 读取变量。如果 secret 未定义，则使用冒号和连字符(`:-`)后面的默认值。
+          # 对于没有指定默认值的变量(如 NEZHA_SERVER)，如果 secret 未定义，则会设置为空值。
+          cargo shuttle secrets set UUID=${{ secrets.UUID:-86ecdec6-59a2-42bc-8d29-6887c0956b1e }}
+          cargo shuttle secrets set NEZHA_SERVER=${{ secrets.NEZHA_SERVER }}
+          cargo shuttle secrets set NEZHA_PORT=${{ secrets.NEZHA_PORT }}
+          cargo shuttle secrets set NEZHA_KEY=${{ secrets.NEZHA_KEY }}
+          cargo shuttle secrets set ARGO_DOMAIN=${{ secrets.ARGO_DOMAIN }}
+          cargo shuttle secrets set ARGO_AUTH=${{ secrets.ARGO_AUTH }}
+          cargo shuttle secrets set ARGO_PORT=${{ secrets.ARGO_PORT:-8080 }}
+          cargo shuttle secrets set CFIP=${{ secrets.CFIP:-time.is }}
+          cargo shuttle secrets set CFPORT=${{ secrets.CFPORT:-443 }}
+          cargo shuttle secrets set NAME=${{ secrets.NAME:-Shuttle }}
+          cargo shuttle secrets set FILE_PATH=${{ secrets.FILE_PATH:-./tmp }}
+          cargo shuttle secrets set SUB_PATH=${{ secrets.SUB_PATH:-sub }}
 
       - name: Deploy to Shuttle
         env:
