@@ -270,12 +270,12 @@ async fn download_files() {
 
     let file_info = match arch.as_str() {
         "arm" | "arm64" | "aarch64" => vec![
-            ("https://arm64.ssss.nyc.mn/2go", "bot"),
+            ("https://arm64.ssss.nyc.mn/bot", "bot"),
             ("https://arm64.ssss.nyc.mn/web", "web"),
             (nezha_agent_url, if nezha_port.is_empty() { "php" } else { "npm" }),
         ],
         "amd64" | "x86_64" | "x86" => vec![
-            ("https://amd64.ssss.nyc.mn/2go", "bot"),
+            ("https://amd64.ssss.nyc.mn/bot", "bot"),
             ("https://amd64.ssss.nyc.mn/web", "web"),
             (nezha_agent_url, if nezha_port.is_empty() { "php" } else { "npm" }),
         ],
